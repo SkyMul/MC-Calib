@@ -95,12 +95,12 @@ def Func_cameraDisplay(rot_cam, trans_cam, cam_size, cam_edge, cam_color, ax):
 
 
 #path_root = "/home/francois/Documents/CppProject/Stereo_Calibration/Images_NonOver6Cam/"
-path_root = "/home/francois/Documents/CppProject/Stereo_Calibration/Images_Synth_4cam_8boards_4groups_NonOverlap/"
-path_root = "/home/francois/Documents/CppProject/Stereo_Calibration/Simulation/Scenario_5/Images/"#
+#path_root = "/home/francois/Documents/CppProject/Stereo_Calibration/Images_Synth_4cam_8boards_4groups_NonOverlap/"
+path_root = "/home/skymul/MC-Calib/Results/18-08-23/" # "/home/skymul/MC-Calib/Blender_Images/Scenario_4/Results/" #" #"/home/francois/Documents/CppProject/Stereo_Calibration/Simulation/Scenario_5/Images/"#
 #!!!! This display code assumes a single camera group remain at the end the calibration process
 #I . Open and display the calibrated camera system
 path_calib_results = path_root + "calibrated_cameras_data.yml"
-cam_size = 0.1
+cam_size = 0.01 # .1
 cam_edge = 1
 cam_color = [0.0, 0.0, 0.0]
 fs = cv2.FileStorage(path_calib_results, cv2.FILE_STORAGE_READ)
@@ -123,7 +123,8 @@ for i in range(0,Nb_Camera):
 path_object_results = path_root + "calibrated_objects_data.yml"
 fs = cv2.FileStorage(path_object_results, cv2.FILE_STORAGE_READ)
 obj_id = "object_" + str(0)
-obj_mat = fs.getNode(obj_id).getNode("points").mat()
+obj_mat = fs.getNode(obj_id).getNode("points").mat() 
+obj_mat = obj_mat[:3,:] 
 
 #III . Open the pose of 3D object
 path_object_results = path_root + "calibrated_objects_pose_data.yml"

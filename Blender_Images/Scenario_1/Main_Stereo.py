@@ -1,0 +1,252 @@
+import bpy
+import bpy_extras
+import numpy as np
+from math import *
+from PIL import Image
+from mathutils import Matrix
+from mathutils import Vector
+import imageio
+from skimage.draw import circle
+from skimage.transform import rescale, resize
+import matplotlib.pyplot as plt
+import random
+import pdb
+import json
+import cv2
+import math
+import mathutils
+
+
+# Build intrinsic camera parameters from Blender camera data
+#
+# See notes on this in 
+# blender.stackexchange.com/questions/15102/what-is-blenders-camera-projection-matrix-model
+
+def get_calibration_matrix_K_from_blender(camd):
+    scene = bpy.context.scene
+    scale = scene.render.resolution_percentage / 100
+    width = scene.render.resolution_x * scale # px
+    height = scene.render.resolution_y * scale # px
+    aspect_ratio = width / height
+    K = np.zeros((3,3), dtype=np.float32)
+    K[0][0] = width / 2 / np.tan(camd.angle / 2)
+    K[1][1] = width / 2 / np.tan(camd.angle / 2) * aspect_ratio
+    K[0][2] = width / 2.
+    K[1][2] = height / 2.
+    K[2][2] = 1.
+    K.transpose()
+    return K
+    '''
+    f_in_mm = camd.lens
+    scene = bpy.context.scene
+    resolution_x_in_px = scene.render.resolution_x
+    resolution_y_in_px = scene.render.resolution_y
+    scale = scene.render.resolution_percentage / 100
+    sensor_width_in_mm = camd.sensor_width
+    sensor_height_in_mm = camd.sensor_height
+    pixel_aspect_ratio = scene.render.pixel_aspect_x / scene.render.pixel_aspect_y
+    if (camd.sensor_fit == 'VERTICAL'):
+        # the sensor height is fixed (sensor fit is horizontal), 
+        # the sensor width is effectively changed with the pixel aspect ratio
+        s_u = resolution_x_in_px * scale / sensor_width_in_mm / pixel_aspect_ratio 
+        s_v = resolution_y_in_px * scale / sensor_height_in_mm
+    else: # 'HORIZONTAL' and 'AUTO'
+        # the sensor width is fixed (sensor fit is horizontal), 
+        # the sensor height is effectively changed with the pixel aspect ratio
+        pixel_aspect_ratio = scene.render.pixel_aspect_x / scene.render.pixel_aspect_y
+        s_u = resolution_x_in_px * scale / sensor_width_in_mm
+        s_v = resolution_y_in_px * scale * pixel_aspect_ratio / sensor_height_in_mm
+    
+
+    # Parameters of intrinsic calibration matrix K
+    alpha_u = f_in_mm * s_u
+    alpha_v = f_in_mm * s_v
+    u_0 = resolution_x_in_px * scale / 2
+    v_0 = resolution_y_in_px * scale / 2
+    skew = 0 # only use rectangular pixels
+
+    K = Matrix(
+        ((alpha_u, skew,    u_0),
+        (    0  , alpha_v, v_0),
+        (    0  , 0,        1 )))
+    return K
+    '''
+
+
+def totuple(a):
+    try:
+        return tuple(totuple(i) for i in a)
+    except TypeError:
+        return a
+
+
+def look_at(obj_camera, point):
+    loc_camera = obj_camera.matrix_world.to_translation()
+
+    direction = point - loc_camera
+    # point the cameras '-Z' and use its 'Y' as up
+    rot_quat = direction.to_track_quat('-Z', 'Y')
+
+    # assume we're using euler rotation
+    obj_camera.rotation_euler = rot_quat.to_euler()
+
+    #Return the quaternion
+    return rot_quat
+
+def sph2cart(azimuth,elevation,r):
+    x = r * np.cos(elevation) * np.cos(azimuth)
+    y = r * np.cos(elevation) * np.sin(azimuth)
+    z = r * np.sin(elevation)
+    return x, y, z
+
+def project_with_matrix( scene, camera, location):
+
+    width, height = scene.render.resolution_x, scene.render.resolution_y
+    persp_mat = camera.calc_matrix_camera( x=width, y=height) * camera.matrix_world.inverted()
+    loc = persp_mat * location.to_4d()
+    
+    return (loc.xyz / (2 * loc.w)) + Vector((0.5, 0.5, 0.5))
+
+
+
+#Working directory
+path_direct = "/home/francois/Documents/CppProject/Stereo_Calibration/Simulation/"
+JsonFile = "collection.json"
+
+#Load the file
+bpy.ops.wm.open_mainfile(filepath=path_direct + 'Three_Boards_Overlap.blend')
+
+#Path to save images
+SavePath = path_direct + "Images/" 
+
+#List the object in the scene
+objs = [obj for obj in bpy.data.objects]
+#pdb.set_trace()
+Board = bpy.data.objects['charuco_board_000.001']
+#bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
+
+# create the first camera
+cam1 = bpy.data.cameras.new("Camera 1")
+#cam1.lens = 18
+cam1.angle = math.radians(60)
+
+# create the camera object
+cam_obj1 = bpy.data.objects.new("Camera1", cam1)
+cam_obj1.location = (9.69, -10.85, 12.388)
+cam_obj1.rotation_euler = (0.6799, 0, 0.8254)
+scene = bpy.context.scene
+scene.objects.link(cam_obj1)
+bpy.context.scene.update()
+obj_camera = bpy.data.objects["Camera1"]
+scene.camera = obj_camera
+
+#Generate the second camera
+cam_obj2 = bpy.data.objects.new("Camera2", cam1)
+cam_obj2.location = (9.69, -10.85, 12.388)
+cam_obj2.rotation_euler = (0.6799, 0, 0.8254)
+scene.objects.link(cam_obj2)
+bpy.context.scene.update()
+obj_camera2 = bpy.data.objects["Camera2"]
+scene.camera = obj_camera2
+# Pose of the second camera wrt to the first camera
+eul_mat_2 = mathutils.Euler((0.0, math.radians(0.0), 0.0), 'XYZ').to_matrix()
+mat_loc_2 = mathutils.Matrix.Translation((-0.7,0,0.0))
+cam2_transform = mat_loc_2 * eul_mat_2.to_4x4()
+
+# Set render resolution
+scene.render.resolution_x = 3648/2
+scene.render.resolution_y = 2752/2
+scene.render.resolution_percentage = 100
+
+#Write GT of the camera pose
+filenameGT = "GroundTruth.yml"
+fs = cv2.FileStorage(filenameGT, cv2.FILE_STORAGE_WRITE)
+fs.write("nb_camera", 2)
+K1_blender = get_calibration_matrix_K_from_blender(cam_obj1.data)
+K1 = np.identity(3)
+K1[0,0] = K1_blender[0][0]
+K1[1,1] = K1_blender[1][1]
+K1[0,2] = K1_blender[0][2]
+K1[1,2] = K1_blender[1][2]
+fs.write("K_1", K1)
+fs.write("P_1", np.identity(4))
+
+K2_blender = get_calibration_matrix_K_from_blender(cam_obj2.data)
+K2 = np.identity(3)
+K2[0,0] = K2_blender[0][0]
+K2[1,1] = K2_blender[1][1]
+K2[0,2] = K2_blender[0][2]
+K2[1,2] = K2_blender[1][2]
+fs.write("K_2", K2)
+P2 = np.identity(4)
+for i in range(0,4):
+    for j in range(0,4):
+        P2[i,j] = cam2_transform[i][j]
+fs.write("P_2", P2)
+
+fs.release()
+
+
+#make the camera look in the direction of the object
+look_at(obj_camera, Board.matrix_world.to_translation())
+
+#Generate cameras on a "hemisphere", different distance and positions
+NbOfIm = 100;
+#Range of the camera motions
+range_cubex = [-1, 1]
+range_cubey = [-3.5, -2.5]
+range_cubez = [-1, 1]
+
+range_ptsplanex = [-1, 1]
+range_ptsplaney = [-1, 1]
+
+for i in range(1, NbOfIm):
+
+    # Random translation in front of the board in a range 0 -2 cube
+    x = (range_cubex[1]-range_cubex[0])*np.random.uniform(0, 1) + range_cubex[0];
+    y = (range_cubey[1]-range_cubey[0])*np.random.uniform(0, 1) + range_cubey[0];
+    z = (range_cubez[1]-range_cubez[0])*np.random.uniform(0, 1) + range_cubez[0];
+    t = [x,y,z]
+
+    #Move the camera
+    obj_camera.location = (x, y, z)
+    bpy.context.scene.update()
+
+    #Make the camera 1 look at a point on a plane Y X
+    ptsx = (range_ptsplanex[1]-range_ptsplanex[0])*np.random.uniform(0, 1) + range_ptsplanex[0];
+    ptsy = (range_ptsplaney[1]-range_ptsplaney[0])*np.random.uniform(0, 1) + range_ptsplaney[0];
+    ptsz = 0
+    pts = Vector((ptsx,ptsy,ptsz)) 
+    rot_quat = look_at(obj_camera, pts)
+    mat_rot = obj_camera.rotation_euler.to_matrix()
+    mat_loc = obj_camera.location
+    mat_transform =  mathutils.Matrix.Translation(mat_loc) * mat_rot.to_4x4()
+    
+    #Save camera 1
+    #bpy.context.scene.render.filepath = SavePath+ str(i) + '.jpg'
+    bpy.context.scene.camera = bpy.context.scene.objects["Camera1"]
+    bpy.context.scene.render.filepath = 'temp.png'
+    bpy.ops.render.render(write_still = True) 
+    im = np.array(Image.open('temp.png'))
+    Iname_save = str(i).zfill(5) + '.png'
+    imageio.imwrite(SavePath + "Cam_001/" + Iname_save, im) 
+
+    # Place camera 2 and save
+    mat_pose_2 = mat_transform*cam2_transform.inverted()
+    obj_camera2.location = mat_pose_2.to_translation()
+    obj_camera2.rotation_euler = mat_pose_2.to_3x3().to_euler()
+    bpy.context.scene.camera = bpy.context.scene.objects["Camera2"]
+    bpy.context.scene.render.filepath = 'temp.png'
+    bpy.ops.render.render(write_still = True) 
+    im = np.array(Image.open('temp.png'))
+    Iname_save = str(i).zfill(5) + '.png'
+    imageio.imwrite(SavePath + "Cam_002/" + Iname_save, im) 
+
+    
+    
+
+file1.close()
+
+	
+
+

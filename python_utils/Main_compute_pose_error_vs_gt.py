@@ -123,7 +123,7 @@ def eul2rot(theta) :
 # 1. Open the parameters obtain by the calibration toolbox
 # path to calibration results
 #path_root = "/home/francois/Documents/CppProject/Stereo_Calibration/Simulation/Scenario_5/Images/"
-path_root = "/disk/francois/Projets/Calibration_toolbox/Data/Blender_Images/Scenario_5/Results/"
+path_root = "/home/skymul/MC-Calib/Results/"
 #path_root = "/disk/francois/Projets/Calibration_toolbox/Data/Real_Images/2021-06-18-15-00-16/"
 path_calib_results = path_root + "calibrated_cameras_data.yml"
 cam_size = 0.5

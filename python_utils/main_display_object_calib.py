@@ -18,8 +18,9 @@ def axisEqual3D(ax):
 #!!!! This display code assumes a single objects remain at the end the calibration process
 # 1. path to object calibration results
 #path_root = "/home/francois/Documents/CppProject/Stereo_Calibration/Images_Synth_4cam_8boards_4groups_NonOverlap/"
-path_root = "/disk/francois/Projets/Calibration_toolbox/Data/Real_Images/stereo_cube/"
-path_root = "/disk/francois/Projets/Dynamic_Nerf_Dataset/0-Calibration/data/Sequence_Calib_RGB/"
+path_root = "/home/skymul/MC-Calib/Results/" 
+#path_root = "/disk/francois/Projets/Calibration_toolbox/Data/Real_Images/stereo_cube/"
+#ath_root = "/disk/francois/Projets/Dynamic_Nerf_Dataset/0-Calibration/data/Sequence_Calib_RGB/"
 path_object_results = path_root + "calibrated_objects_data.yml"
 
 marker_size = 1

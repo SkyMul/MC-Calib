@@ -1,0 +1,78 @@
+%YAML:1.0
+---
+nb_camera: 3
+camera_0:
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 6.4115911865234398e+02, 0., 6.3155462646484398e+02, 0.,
+          6.4115911865234398e+02, 3.6204748535156199e+02, 0., 0., 1. ]
+   distortion_vector: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [ 0., 0., 0., 0., 0. ]
+   distortion_type: 0
+   camera_group: 0
+   img_width: 640
+   img_height: 480
+   camera_pose_matrix: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0.,
+          1. ]
+camera_1:
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 6.4972033691406205e+02, 0., 6.4283941650390602e+02, 0.,
+          6.4972033691406205e+02, 3.5480822753906199e+02, 0., 0., 1. ]
+   distortion_vector: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [ 0., 0., 0., 0., 0. ]
+   distortion_type: 0
+   camera_group: 0
+   img_width: 640
+   img_height: 480
+   camera_pose_matrix: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ -7.8267314519389908e-01, -5.6433176753938341e-01,
+          -2.6258789754702222e-01, -6.9540674219546161e-01,
+          -6.2628684812633464e-02, -3.4833159780903999e-01,
+          9.3527682843447013e-01, 6.5739003892066328e-01,
+          -6.1927408764692371e-01, 7.4846159160886605e-01,
+          2.3728643082863760e-01, -1.7270343466509902e-01, 0., 0., 0.,
+          1. ]
+camera_2:
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 6.4748339843750000e+02, 0., 6.4192315673828102e+02, 0.,
+          6.4748339843750000e+02, 3.5244293212890602e+02, 0., 0., 1. ]
+   distortion_vector: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [ 0., 0., 0., 0., 0. ]
+   distortion_type: 0
+   camera_group: 0
+   img_width: 640
+   img_height: 480
+   camera_pose_matrix: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 8.8812192701221826e-01, -4.0489957738764715e-01,
+          -2.1747591818729833e-01, 5.2085668201770810e-02,
+          1.9749197289526133e-01, 7.6346364520344601e-01,
+          -6.1491477709891140e-01, 9.9635881632596313e-01,
+          4.1501369062000970e-01, 5.0316954864535601e-01,
+          7.5801322014460115e-01, 3.0624184184703440e-01, 0., 0., 0., 1. ]

@@ -1,0 +1,72 @@
+%YAML:1.0
+---
+nb_camera: 3
+
+camera_0:
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 641.159118652344, 0, 631.554626464844, 0, 641.159118652344, 362.047485351562, 0, 0, 1 ]
+   distortion_vector: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [0, 0, 0, 0, 0] #[ 1.4511733, 0.7439479, -0.00015223636, -8.017978e-06, 0.03621 ]
+   distortion_type: 0
+   camera_group: 0
+   img_width: 1280
+   img_height: 720
+   camera_pose_matrix: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0.,
+          1. ]
+
+camera_1:
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 649.720336914062, 0, 642.839416503906, 0, 649.720336914062, 354.808227539062, 0, 0, 1 ]
+   distortion_vector: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [0, 0, 0, 0, 0] #[ 1.4511733, 0.7439479, -0.00015223636, -8.017978e-06, 0.03621 ]
+   distortion_type: 0
+   camera_group: 0
+   img_width: 1280
+   img_height: 720
+   camera_pose_matrix: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0.,
+          1. ]
+         
+camera_2:
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 647.4833984375, 0, 641.923156738281, 0, 647.4833984375, 352.442932128906, 0, 0, 1 ] # fx, 0, ox, 0, fy, oy, 0, 0, 1
+   distortion_vector: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [0, 0, 0, 0, 0] #[ 1.5211029, 0.95097756, -0.0001322693, 0.00011700037, 0.051221557 ]
+   distortion_type: 0
+   camera_group: 0
+   img_width: 1280
+   img_height: 720
+   camera_pose_matrix: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0.,
+          1. ]
+
+
+
